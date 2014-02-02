@@ -1,9 +1,9 @@
 {
-    "name": "vegasje/netsuite-php-toolkit",
+    "name": "vegasje/netsuite-toolkit-php",
     "type": "library",
-    "description": "Netsuite PHP Toolkit",
+    "description": "Netsuite Toolkit - PHP",
     "keywords": ["netsuite","toolkit"],
-    "homepage": "http://github.com/vegasje/netsuite-php-toolkit",
+    "homepage": "http://github.com/vegasje/netsuite-toolkit-php",
     "license": "",
     "authors": [
         {
