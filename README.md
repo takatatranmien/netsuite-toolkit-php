@@ -1,2 +1,2 @@
-netsuite-php-toolkit
+Netsuite Toolkit - PHP
 ====================
