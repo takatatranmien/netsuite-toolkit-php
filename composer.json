@@ -17,8 +17,8 @@
         "php": ">=5.3.0"
     },
     "autoload": {
-        "classmap": [
-            "PHPToolkit/"
-        ]
+        "psr-0": {
+            "NetSuite\\": "src/"
+        }
     }
 }
