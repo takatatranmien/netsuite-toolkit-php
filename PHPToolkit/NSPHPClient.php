@@ -1,6 +1,6 @@
-<?php
+<?php namespace NetSuite\Toolkit;
 
-require "NSconfig.php";
+// require "NSconfig.php";
 
 function arrayValuesAreEmpty ($array)
 {
@@ -175,21 +175,23 @@ class NSPHPClient {
     private $userequest = true;
     protected $classmap = null;
     public $generated_from_endpoint = "";
+    protected $config;
 
+    // Hide constructor
+    private function __construct() {}
 
-    protected function __construct($wsdl=null, $options=array()) {
-        global $nshost, $nsendpoint;
-        global $nsaccount, $nsemail, $nsrole, $nspassword;
-        global $debuginfo;
+    public static function fromConfig($config)
+    {
+        $this->config = $config;
 
-        if (!isset($wsdl)) {
-             if (!isset($nshost)) {
+        if (!isset($config->wsdl())) {
+             if (!isset($config->host())) {
                 throw new Exception('Webservice host must be specified');
              }
-             if (!isset($nsendpoint)) {
+             if (!isset($config->endpoint())) {
                 throw new Exception('Webservice endpoint must be specified');
              }
-             $wsdl = $nshost . "/wsdl/v" . $nsendpoint . "_0/netsuite.wsdl";
+             $config->setWsdl("{$config->host()}/wsdl/v{$config->endpoint()}_0/netsuite.wsdl";
         }
 
         if (!extension_loaded('soap')) {
@@ -198,25 +200,26 @@ class NSPHPClient {
             trigger_error($soap_warning, E_USER_WARNING);
         }
 
-        if (!extension_loaded('openssl') && substr($wsdl, 0, 5) == "https") {
+        if (!extension_loaded('openssl') && substr($config->wsdl(), 0, 5) == "https") {
             // check for loaded SOAP extension
             $soap_warning = 'The Open SSL PHP extension is not loaded and you are trying to use HTTPS protocol. Please modify the extension settings in php.ini accordingly.';
             trigger_error($soap_warning, E_USER_WARNING);
         }
 
-        if ( $this->generated_from_endpoint != $nsendpoint ) {
+        if ( $this->generated_from_endpoint != $config->endpoint() ) {
             // check for the endpoint compatibility failed, but it might still be compatible. Issue only warning
-            $endpoint_warning = 'The NetSuiteService classes were generated from the '.$this->generated_from_endpoint .' endpoint but you are running against ' . $nsendpoint;
+            $endpoint_warning = 'The NetSuiteService classes were generated from the '.$this->generated_from_endpoint .' endpoint but you are running against ' . $config->endpoint();
             trigger_error($endpoint_warning, E_USER_WARNING);
         }
 
+        $options = $config->options();
         $options['classmap'] = $this->classmap;
         $options['trace'] = 1;
         $options['connection_timeout'] = 5;
         $options['cache_wsdl'] = WSDL_CACHE_BOTH;
         $httpheaders = "PHP-SOAP/" . phpversion() . " + NetSuite PHP Toolkit " . $this->nsversion;
 
-        $options['location'] = $nshost . "/services/NetSuitePort_" . $nsendpoint;
+        $options['location'] = $config->host() . "/services/NetSuitePort_" . $config->endpoint();
         $options['keep_alive'] = false; // do not maintain http connection to the server.
         $options['features'] = SOAP_SINGLE_ELEMENT_ARRAYS;
 
@@ -235,9 +238,9 @@ class NSPHPClient {
         }
 
         $options['user_agent'] =  $httpheaders;
-        $this->setPassport($nsaccount, $nsemail, $nsrole, $nspassword);
+        $this->setPassport($config->account(), $config->email(), $config->role(), $config->password());
 
-        $this->client = new SoapClient($wsdl, $options);
+        $this->client = new SoapClient($config->wsdl(), $options);
     }
 
     public function setPassport($nsaccount, $nsemail, $nsrole, $nspassword) {

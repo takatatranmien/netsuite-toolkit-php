@@ -1,4 +1,4 @@
-<?php
+<?php namespace NetSuite\Toolkit;
 
 require_once "NSPHPClient.php";
 
@@ -122218,8 +122218,12 @@ class NetSuiteService extends NSPHPClient {
 	 * @param string $wsdl WSDL location for this service
 	 * @param array $options Options for the SoapClient
 	 */
-	public function __construct($wsdl=null, $options=array()) {
-		parent::__construct($wsdl, $options);
+	// Hide constructor
+	private function __construct() {}
+
+	public static function fromConfig($config)
+	{
+		return parent::fromConfig($config);
 	}
 
 	/**
